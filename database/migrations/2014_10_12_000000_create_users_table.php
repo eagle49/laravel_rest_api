@@ -18,12 +18,14 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('phonenumber');
+            $table->string('phone');
             $table->string('country');
+            $table->string('street');
             $table->string('profile');
             $table->string('timezone');
+            $table->string('photo_image');
             $table->tinyInteger('userrole');
-            $table->tinyInteger('status', 2);
+            $table->tinyInteger('status');
             $table->boolean('confirmed');
             $table->string('confirmation_code');
             $table->rememberToken();
