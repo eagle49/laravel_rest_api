@@ -22,4 +22,11 @@ Route::post('getlogin','UserController@getlogin');
 Route::post('getsignup','UserController@getsignup');
 Route::get('getverify/{verify_code}', 'UserController@getverify');
 Route::get('sendvcode/{email}', 'UserController@sendvcode');
+Route::get('projects/list', 'ProjectController@getProjectList');
+Route::get('projects/folders', 'ProjectController@getFolderList');
+Route::get('teammembers', 'TeamMemberController@getTeamMemberList');
+Route::post('sendResetLink', 'UserController@sendResetLink');
+Route::get('getresetverify/{verify_code}', 'UserController@getResetVerify');
+Route::post('resetPassword', 'UserController@resetPassword');
+
 
