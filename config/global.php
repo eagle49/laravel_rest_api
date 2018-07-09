@@ -1,6 +1,6 @@
 <?php
 
-    define('APP_URL',               'http://cda73586.ngrok.io/');
+    define('APP_URL',               'http://bcb6abec.ngrok.io/');
 
     define('STATUS_SUCCESS',        'success');
     define('STATUS_ERROR',          'error');

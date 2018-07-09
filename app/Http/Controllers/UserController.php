@@ -22,18 +22,18 @@ class UserController extends Controller
         ]);
 
         if ($isValid->fails()) {
-        	return response(array('status'=>STATUS_ERROR));
+        	return response(array( 'status' => STATUS_ERROR ));
 		}
 		
 		$token = $this->RandomString(20);
 
-        User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
 			'password' => Hash::make($data['password']),
 			'remember_token' => $token,
         ]);
-        return response(array('status'=> STATUS_SUCCESS , 'token' => $token ));
+        return response(array('status'=> STATUS_SUCCESS, 'token' => $token, 'user_id' => $user['id']));
 
     }
 
@@ -120,7 +120,7 @@ class UserController extends Controller
         $data = array( 'confirmation_code' => $confirmation_code, 
                        'email' => $email, 
                        'name' => $user['name'], 
-                       'url' => APP_URL.'pages/auth/reset-password/'.$confirmation_code
+                       'url' => APP_URL.'verify/'.$confirmation_code
                     );
 		Mail::send('email.verify', $data, function($message) use ($data) {
             $message->to($data['email'], 'To Customer')
@@ -180,7 +180,7 @@ class UserController extends Controller
                     ->getHeaders()
                     ->addTextHeader('x-mailgun-native-send', 'true');
             });
-            return response(array( 'status' => 'success' ));
+            return response(array( 'status' => STATUS_SUCCESS ));
             // send reset password link to this email
         } else {
             // user is not exist

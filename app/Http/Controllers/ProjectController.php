@@ -3,11 +3,67 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Folder;
+use App\Project;
+use App\User;
 
 class ProjectController extends Controller
 {
+    /**
+     * Create new Project
+     */
+    public function addProject(Request $request) {
+        $project = Project::create([
+            'title'         => $request['title'],
+            'folder_id'     => $request['folder_id'],
+            'description'   => $request['description'],
+            'assigner'      => $request['assigner'],
+            'type'          => $request['type'],
+            'budget'        => $request['budget'],
+        ]);
+
+        if( $project ) {
+            return response(array( 'status' => STATUS_SUCCESS, 'id' => $project['id'] ));
+        }
+    }
     //
-    public function getProjectList() {
+    public function getProjectList(Request $request) {
+        $folder_id = $request['folder_id'];
+        $projects = Project::where('folder_id', '=', $folder_id)->get();
+
+        for($i=0; $i<count($projects); $i++) {
+            $assigner_id = $projects[$i]['assigner'];
+
+            // Set the Project Number(Position)
+            $projects[$i]['position'] = $i+1;
+
+            //Get Assigner Name, Avatar in User Table
+            $assigner = User::find($assigner_id);
+            if ( $assigner && $assigner['photo_image'] ) {
+                $projects[$i]['assigner'] = [ 'name' => $assigner['name'], 'photo' => $assigner['photo_image'] ];
+            } else {
+                $projects[$i]['assigner'] = [ 'name' => $assigner['name'], 'photo' => 'assets/images/avatars/profile.jpg' ];
+            }
+
+            // Set the Projects Team // field: team_members => [user_id, user_id, ...]
+            $projects[$i]['team'] = [];
+            $team_members = $projects[$i]['team_members'];
+            $arr_members = [];  // temp json array for $project[$i]['team']
+            $arr_member = explode(',', $team_members);
+            for( $j=0; $j<count($arr_member); $j++ ) {
+                $t_member = User::find($arr_member[$j]);
+                if ( $t_member ) {
+                    array_push($arr_members, array(
+                        'id' => $t_member['id'], 
+                        'name' => $t_member['name'], 
+                        'photo' => $t_member['photo_image'] == '' ? 'assets/images/avatars/profile.jpg' : $t_member['photo_image']
+                    ));
+                }
+            }
+            $projects[$i]['team'] = $arr_members;
+        }
+        return response(array('data' => $projects, 'folder_id'=> $folder_id ));
+
         $array = [
             ['id' => '1', 'position'=> 1, 'name'=> 'Project1', 'created'=> '2018/06/28', 'type'=> 'Excel', 'team'=> 
                     [
@@ -91,14 +147,70 @@ class ProjectController extends Controller
     }
 
     public function getFolderList() {
-        $array = [
-            [ 'id' => '1', 'name' => 'Folder1'],
-            [ 'id' => '2', 'name' => 'Folder2'],
-            [ 'id' => '3', 'name' => 'Folder3'],
-            [ 'id' => '4', 'name' => 'Folder4'],
-            [ 'id' => '5', 'name' => 'Folder5'],
-        ];
 
-        return response(array('data' => $array));
+        $folders = Folder::all();
+        return response(array('data' => $folders));
+    }
+
+    /**
+     * Add new folder
+     * 
+     * @param name = 'New Folder'(default)
+     */
+    public function addFolder(Request $request) {
+        $name = $request['name'];
+        $folder = Folder::create([
+            'name' => $name,
+        ]);
+
+        if( $folder ) {
+            return response(array( 'status' => STATUS_SUCCESS, 'id' => $folder['id'] ));
+        }
+    }
+
+    /**
+     * Delete folder
+     * 
+     * @param folder_id
+     */
+    public function deleteFolder(Request $request) {
+        $folder_id = $request['folder_id'];
+        $folder = Folder::find($folder_id);
+        if ( $folder ) {
+            $folder->delete();
+        }
+        return response(array( 'status' => STATUS_SUCCESS, 'folder_id' => $folder_id ));
+    }
+
+    /**
+     * Get Folder
+     * 
+     * @param folder_id
+     */
+    public function getFolder(Request $request) {
+        $folder_id = $request['folder_id'];
+        $folder = Folder::find($folder_id);
+        if ( $folder ) {
+            return response(array( 'status' => STATUS_SUCCESS, 'data' => json_encode($folder) ));
+        } else {
+            return response(array( 'status' => STATUS_ERROR, 'data' => json_encode('{}') ));
+        }
+    }
+
+    /**
+     * Update folder
+     * 
+     * @param folder_id, folder_name
+     */
+    public function updateFolder(Request $request) {
+        $folder_id   = $request['folder_id'];
+        $folder_name = $request['folder_name'];
+        $folder = Folder::find($folder_id);
+        if ( $folder ) {
+            $folder->name = $folder_name;
+            $folder->save();
+        }
+
+        return response(array( 'status' => STATUS_SUCCESS ));
     }
 }

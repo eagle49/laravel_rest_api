@@ -22,11 +22,35 @@ Route::post('getlogin','UserController@getlogin');
 Route::post('getsignup','UserController@getsignup');
 Route::get('getverify/{verify_code}', 'UserController@getverify');
 Route::get('sendvcode/{email}', 'UserController@sendvcode');
-Route::get('projects/list', 'ProjectController@getProjectList');
-Route::get('projects/folders', 'ProjectController@getFolderList');
+// Route::get('folder/list', 'ProjectController@getFolderList');
 Route::get('teammembers', 'TeamMemberController@getTeamMemberList');
 Route::post('sendResetLink', 'UserController@sendResetLink');
 Route::get('getresetverify/{verify_code}', 'UserController@getResetVerify');
 Route::post('resetPassword', 'UserController@resetPassword');
 
 
+Route::group(['prefix' => 'folder'], function () {
+    Route::get('list', 'ProjectController@getFolderList');
+    Route::post('add', 'ProjectController@addFolder');
+    Route::post('delete', 'ProjectController@deleteFolder');
+    Route::post('get', 'ProjectController@getFolder');
+    Route::post('update', 'ProjectController@updateFolder');
+});
+
+Route::group(['prefix' => 'team'], function () {
+    Route::get('list', 'TeamController@getTeamList');
+    Route::post('add', 'TeamController@addTeam');
+    Route::post('delete', 'TeamController@deleteTeam');
+    Route::post('update', 'TeamController@updateTeam');
+});
+
+Route::group(['prefix' => 'teammember'], function() {
+    Route::get('list', 'TeamMemberController@getTeamMemberList');
+    Route::post('add', 'TeamMemberController@addTeamMember');
+    Route::get('delete', 'TeamMemberController@deleteTeamMember');
+});
+
+Route::group(['prefix' => 'project'], function() {
+    Route::get('list/{folder_id}', 'ProjectController@getProjectList');
+    Route::post('add', 'ProjectController@addProject');
+});
